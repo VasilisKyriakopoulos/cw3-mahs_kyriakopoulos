@@ -12,6 +12,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -43,14 +44,29 @@ public class App extends Application {
         numbersBox.setPadding(new Insets(5,5,5,5));
         numbersBox.setSpacing(10);
         hbox.getChildren().addAll(numbersBox);
-        TextField message = new TextField();
+        TextArea message = new TextArea();
+        message.setPrefHeight(Integer.MAX_VALUE);
+        message.setPrefWidth(Integer.MAX_VALUE);
         VBox messageBox = new VBox();
+    
         messageBox.getChildren().add(message);
         messageBox.setPadding(new Insets(5,5,5,5));
-        
         Button sendButton = new Button("Send");
-        Text text2 =  new Text("S");
-        vbox.getChildren().addAll(hbox,messageBox,sendButton,text2);
+        sendButton.setPrefWidth(Integer.MAX_VALUE);
+        HBox sendButtonBox = new HBox();
+        sendButtonBox.getChildren().add(sendButton);
+        Text text2 =  new Text("0/160");
+        HBox text2Box = new HBox();
+        text2Box.getChildren().add(text2);
+        text2Box.setAlignment(Pos.BASELINE_RIGHT);
+        text2Box.setPadding(new Insets(0,10,0,0));
+        message.setOnKeyPressed(e -> {
+            
+            int num = message.getLength();
+
+            text2.setText(num + "/160");
+         });
+        vbox.getChildren().addAll(hbox,messageBox,sendButton,text2Box);
         var scene = new Scene(vbox, 640, 480);
         stage.setMinHeight(300);
         stage.setMinWidth(300);
