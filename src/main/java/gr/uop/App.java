@@ -2,11 +2,14 @@ package gr.uop;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Observable;
 import java.util.Optional;
 import java.util.Random;
 import java.util.regex.Pattern;
 
 import javafx.application.Application;
+import javafx.beans.value.ObservableObjectValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -17,6 +20,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
@@ -28,16 +32,20 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.collections.ObservableList;
 
 /**
  * JavaFX App
  */
 public class App extends Application {
     ListView  list = new ListView<Text>();
+    
     ListView  list2 = new ListView<Text>();
+
     @Override
     public void start(Stage stage) {
-       
+        list.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        list2.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         VBox vbox = new VBox();
         HBox hbox = new HBox();
         Text text1 =  new Text("To");
@@ -115,7 +123,7 @@ public class App extends Application {
         hbox3.getChildren().addAll(vbox3,buttonsRightLeft,vbox4);
         hbox3.setAlignment(Pos.CENTER);
          
-         for(int i=0 ; i<50 ; i++){
+         for(int i=0 ; i<3 ; i++){
             Random rand = new Random();
             int num1 = (rand.nextInt(7) + 1) * 100 + (rand.nextInt(8) * 10) + rand.nextInt(8);
             int num2 = rand.nextInt(743);
@@ -158,6 +166,21 @@ public class App extends Application {
                      }
                  }
              });
+             buttonOk.setOnAction(e->{
+                String s = numbers.getText();
+                
+                for (int i=0 ; i<list2.getItems().size();i++) {
+                   Text t = (Text)list2.getItems().get(i);
+                   s = s+ t.getText()+ ";";
+                }
+                numbers.setText(s);
+                stage2.close();
+                stage.show();
+            });
+            buttonCancel.setOnAction(e -> {
+                stage2.close();
+                stage.show();
+            });
              addButton.setOnAction(e->{
                 stage.close();
                 stage2.show();
@@ -165,6 +188,54 @@ public class App extends Application {
             buttonCancel.setOnAction(e -> {
                 stage2.close();
                 stage.show();
+            });
+            sendButton.setOnAction(e -> {
+                if(numbers.getText().isEmpty()){
+                    if(message.getText().isEmpty()){
+                        Alert alert = new Alert(AlertType.ERROR, "The  message cannot be send please add a recipient.");
+        
+                     Optional<ButtonType> result = alert.showAndWait();
+        
+                     if (result.isPresent()) {
+                         if (result.get() == ButtonType.OK) {
+                             System.out.println("Closing...");
+                             e.consume();
+                        }
+                     }
+                    }
+                }
+                else if(message.getText().isEmpty()){
+                    Alert alert = new Alert(AlertType.CONFIRMATION, "Do you want to send empty message?");
+    
+                 Optional<ButtonType> result = alert.showAndWait();
+    
+                 if (result.isPresent()) {
+                     if (result.get() == ButtonType.OK) {
+                         System.out.println("Closing...");
+                         e.consume();
+                    }
+                    else if (result.get() == ButtonType.CANCEL) {
+                         System.out.println("Cancel");
+                         e.consume();
+                     }
+                 }
+                }
+                
+                else{
+                    Alert alert = new Alert(AlertType.INFORMATION, "Message has been sent");
+    
+                 Optional<ButtonType> result = alert.showAndWait();
+    
+                 if (result.isPresent()) {
+                     if (result.get() == ButtonType.OK) {
+                         System.out.println("Closing...");
+                         numbers.setText("");
+                         message.setText("");
+                         e.consume();
+                    }
+                 }
+                    
+                }
             });
         stage.setMinHeight(300);
         stage.setMinWidth(300);
@@ -182,20 +253,41 @@ public class App extends Application {
 public class MoveToRightList implements EventHandler <ActionEvent>{
         
     public void handle(ActionEvent event){
-        int index = list.getSelectionModel().getSelectedIndex();
-        Text text = (Text) list.getSelectionModel().getSelectedItem();
-        list2.getItems().add(text);
-        list.getItems().remove(index);
+        ObservableList li  = (ObservableList) list.getSelectionModel().getSelectedIndices();
+        System.out.println(li.size()+"yo");
+        ArrayList arl = new ArrayList<>();
+        for(int i = 0; i<li.size();i++)
+        {
+            int  index =  (int)li.get(i);
+            System.out.println(index);
+            Text text = (Text) list.getItems().get(index);
+            System.out.println(text.getText());
+            list2.getItems().add(new Text(text.getText()));
+            arl.add(list.getItems().get(index));
+        }
+        //Linei to provlima me ta indexes giati bgainei outofbounds an kanoume remove mesa sto loop 
+        list.getItems().removeAll(arl);
+
         
     }
 }
 public class MoveToLeftList implements EventHandler <ActionEvent>{
     
     public void handle(ActionEvent event){
-        int index = list2.getSelectionModel().getSelectedIndex();
-        Text text = (Text) list2.getSelectionModel().getSelectedItem();
-        list.getItems().add(text);
-        list2.getItems().remove(index);
+        ObservableList li  = (ObservableList) list.getSelectionModel().getSelectedIndices();
+        System.out.println(li.size()+"yo");
+        ArrayList arl = new ArrayList<>();
+        for(int i = 0; i<li.size();i++)
+        {
+            int  index =  (int)li.get(i);
+            System.out.println(index);
+            Text text = (Text) list2.getItems().get(index);
+            System.out.println(text.getText());
+            list.getItems().add(new Text(text.getText()));
+            arl.add(list2.getItems().get(index));
+        }
+        list2.getItems().removeAll(arl);
+
         
     }
 }
