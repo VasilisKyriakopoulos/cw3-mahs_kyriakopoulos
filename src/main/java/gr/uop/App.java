@@ -41,7 +41,8 @@ public class App extends Application {
     ListView  list = new ListView<Text>();
     
     ListView  list2 = new ListView<Text>();
-
+    Button buttonRight = new Button("Add");
+    Button buttonLeft = new Button("Remove");
     @Override
     public void start(Stage stage) {
         list.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -105,8 +106,8 @@ public class App extends Application {
         vbox3.setSpacing(10);
         vbox3.setPadding(new Insets(10,10,50,10));
         HBox hbox3 = new HBox();
-        Button buttonRight = new Button("Add");
-        Button buttonLeft = new Button("Remove");
+        
+        buttonLeft.setVisible(false);
         buttonLeft.setMaxWidth(200);
         buttonRight.setMaxWidth(200);
         VBox buttonsRightLeft = new VBox();
@@ -144,7 +145,6 @@ public class App extends Application {
          boxOkCancel.setAlignment(Pos.CENTER_RIGHT);
          boxOkCancel.setPadding(new Insets(10,80,10,10));
          boxOkCancel.setSpacing(10);
-         
          VBox mainVbox = new VBox();
          mainVbox.setAlignment(Pos.CENTER);
          mainVbox.getChildren().addAll(hbox3,boxOkCancel);
@@ -152,6 +152,7 @@ public class App extends Application {
         var scene2 = new Scene(mainVbox, 640, 480);
         Stage stage2 = new Stage();
         stage.addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, (e) -> {
+            if(numbers.getText()!="" || message.getText()!=""){
                  Alert alert = new Alert(AlertType.CONFIRMATION, "Do you want to close the window?");
     
                  Optional<ButtonType> result = alert.showAndWait();
@@ -165,6 +166,7 @@ public class App extends Application {
                          e.consume();
                      }
                  }
+                }
              });
              buttonOk.setOnAction(e->{
                 String s = numbers.getText();
@@ -182,6 +184,14 @@ public class App extends Application {
                 stage.show();
             });
              addButton.setOnAction(e->{
+               if(numbers.getText()!=""){
+                String[] arr = numbers.getText().split(";");
+                
+                for (String s : arr){
+                    list2.getItems().add(new Text(s));
+                }
+                numbers.setText("");
+            }
                 stage.close();
                 stage2.show();
             });
@@ -191,7 +201,7 @@ public class App extends Application {
             });
             sendButton.setOnAction(e -> {
                 if(numbers.getText().isEmpty()){
-                    if(message.getText().isEmpty()){
+                    
                         Alert alert = new Alert(AlertType.ERROR, "The  message cannot be send please add a recipient.");
         
                      Optional<ButtonType> result = alert.showAndWait();
@@ -202,15 +212,17 @@ public class App extends Application {
                              e.consume();
                         }
                      }
-                    }
+                    
                 }
                 else if(message.getText().isEmpty()){
                     Alert alert = new Alert(AlertType.CONFIRMATION, "Do you want to send empty message?");
     
                  Optional<ButtonType> result = alert.showAndWait();
-    
+                
                  if (result.isPresent()) {
+                     numbers.setText("");
                      if (result.get() == ButtonType.OK) {
+
                          System.out.println("Closing...");
                          e.consume();
                     }
@@ -253,41 +265,49 @@ public class App extends Application {
 public class MoveToRightList implements EventHandler <ActionEvent>{
         
     public void handle(ActionEvent event){
+        
+        
         ObservableList li  = (ObservableList) list.getSelectionModel().getSelectedIndices();
-        System.out.println(li.size()+"yo");
-        ArrayList arl = new ArrayList<>();
+        if(!li.isEmpty()){
+        buttonLeft.setVisible(true);
+        ArrayList arl = new ArrayList<>(); 
         for(int i = 0; i<li.size();i++)
         {
             int  index =  (int)li.get(i);
-            System.out.println(index);
             Text text = (Text) list.getItems().get(index);
-            System.out.println(text.getText());
             list2.getItems().add(new Text(text.getText()));
             arl.add(list.getItems().get(index));
         }
         //Linei to provlima me ta indexes giati bgainei outofbounds an kanoume remove mesa sto loop 
         list.getItems().removeAll(arl);
-
-        
+        if(list.getItems().isEmpty()){
+            buttonRight.setVisible(false);
+        }
+    }
     }
 }
 public class MoveToLeftList implements EventHandler <ActionEvent>{
     
     public void handle(ActionEvent event){
-        ObservableList li  = (ObservableList) list.getSelectionModel().getSelectedIndices();
-        System.out.println(li.size()+"yo");
+        
+        ObservableList li  = (ObservableList) list2.getSelectionModel().getSelectedIndices();
+        if(!li.isEmpty()){
+            buttonRight.setVisible(true);
+        
         ArrayList arl = new ArrayList<>();
         for(int i = 0; i<li.size();i++)
         {
             int  index =  (int)li.get(i);
-            System.out.println(index);
             Text text = (Text) list2.getItems().get(index);
-            System.out.println(text.getText());
             list.getItems().add(new Text(text.getText()));
             arl.add(list2.getItems().get(index));
         }
         list2.getItems().removeAll(arl);
-
+        if(list2.getItems().isEmpty()){
+            buttonLeft.setVisible(false);
+        }
+        
+    }
         
     }
 }
